@@ -17,22 +17,7 @@ The **Fire Detection Model** is a machine learning pipeline designed to accurate
 
 ## Directory Structure
 
-src/
-├── convert_bmespecimen.py 
-├── data_preprocessing.py 
-├── model_training_random_forest.py 
-├── model_training_xgboost.py
-├── model_training_lightgbm.py 
-├── model_training_gradient_boosting.py 
-├── model_training_stacking.py   
-├── model_evaluation.py 
-├── utils.py    
-└── main.py
-config.yaml 
-output/
-├── logs/
-├── models/
-└── evaluation/
+fire-detection-model/ │ ├── src/ # Source code │ ├── convert_bmespecimen.py # Converts .bmespecimen files to CSV │ ├── data_preprocessing.py # Handles data preprocessing and feature engineering │ ├── model_training_random_forest.py # Trains the Random Forest model │ ├── model_training_xgboost.py # Trains the XGBoost model │ ├── model_training_lightgbm.py # Trains the LightGBM model │ ├── model_training_gradient_boosting.py # Trains the Gradient Boosting model │ ├── model_training_stacking.py # Combines base models using stacking │ ├── model_evaluation.py # Evaluates model performance │ ├── main.py # Orchestrates the entire pipeline │ └── utils.py # Utility functions for loading configs, logging, etc. │ ├── output/ # Output directory │ ├── converted_csv/ # Stores converted .csv files │ ├── evaluation/ # Stores evaluation metrics (e.g., confusion matrices) │ ├── logs/ # Log files for tracking execution │ └── models/ # Saved trained model files │ ├── .gitignore # Specifies files and directories to ignore ├── README.md # Project documentation ├── config.yaml # Configuration file with paths, parameters, etc. └── requirements.txt # Python dependencies
 
 ## Getting Started
 
