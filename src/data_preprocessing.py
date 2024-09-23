@@ -3,6 +3,7 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 from scipy import stats
 import os
+import logging
 from utils import load_config, setup_logging
 
 # Load configuration and set up logging
@@ -19,6 +20,11 @@ def preprocess_data(input_dir, output_file):
                 df = pd.read_csv(os.path.join(input_dir, filename), parse_dates=['timestamp'])
                 dataframes.append(df)
                 logging.info(f"Loaded data from {filename}")
+
+        # Check if any dataframes were loaded
+        if not dataframes:
+            logging.warning("No valid CSV files found in the input directory. Exiting preprocessing.")
+            return
 
         # Combining all data
         combined_df = pd.concat(dataframes, ignore_index=True)
@@ -70,8 +76,11 @@ def preprocess_data(input_dir, output_file):
         combined_df['Gas1_to_Gas3_Ratio'] = combined_df['gas1'] / (combined_df['gas3'] + 1e-6)
         combined_df['Gas2_to_Gas4_Ratio'] = combined_df['gas2'] / (combined_df['gas4'] + 1e-6)
 
+        # Handle infinite values
+        combined_df.replace([np.inf, -np.inf], np.nan, inplace=True)
+
         # Rolling Window Statistics (window of 5 readings)
-        rolling_window = 5
+        rolling_window = config['preprocessing'].get('rolling_window', 5)  # Read from config.yaml or default to 5
         for feature in ['temperature', 'humidity', 'gas1']:
             combined_df[f'Rolling_Mean_{feature.capitalize()}'] = combined_df[feature].rolling(window=rolling_window).mean()
             combined_df[f'Rolling_Std_{feature.capitalize()}'] = combined_df[feature].rolling(window=rolling_window).std()
