@@ -1,1 +1,28 @@
+# config.yaml
+data:
+  raw_data_dir: "../data/raw/"
+  processed_data_path: "../output/processed_sensor_data.csv"
+  model_output_path: "../output/models/"
+  log_path: "../output/logs/"
+  evaluation_output_path: "../output/evaluation/"
+
+model_params:
+  random_forest:
+    n_estimators: [100, 200, 300]
+    max_depth: [10, 20, None]
+    min_samples_leaf: [1, 2, 4]
+  xgboost:
+    n_estimators: [100, 200]
+    max_depth: [3, 6, 10]
+    learning_rate: [0.01, 0.1]
+    subsample: [0.7, 1.0]
+  lightgbm:
+    n_estimators: [100, 200]
+    max_depth: [-1, 10, 20]
+    learning_rate: [0.01, 0.1]
+    num_leaves: [31, 50]
+  gradient_boosting:
+    n_estimators: [100, 200]
+    max_depth: [3, 5, 10]
+    learning_rate: [0.01, 0.1]
 
