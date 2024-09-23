@@ -6,6 +6,13 @@ data:
   log_path: "../output/logs/"
   evaluation_output_path: "../output/evaluation/"
 
+output_paths:
+  converted_csv: "../output/converted_csv/"
+  processed_data: "../output/processed_sensor_data.csv"
+  models: "../output/models/"
+  logs: "../output/logs/"
+  evaluation: "../output/evaluation/"
+
 model_params:
   random_forest:
     n_estimators: [100, 200, 300]
@@ -26,3 +33,18 @@ model_params:
     max_depth: [3, 5, 10]
     learning_rate: [0.01, 0.1]
 
+evaluation:
+  test_size: 0.3
+  random_state: 42
+
+logging:
+  level: "INFO"
+
+model_selection:
+  train_random_forest: True
+  train_xgboost: True
+  train_lightgbm: True
+  train_gradient_boosting: True
+  train_stacking: True
+
+environment: "development"
