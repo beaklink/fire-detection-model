@@ -27,27 +27,34 @@ def main_pipeline():
     """
     try:
         # Step 1: Convert .bmespecimen files to CSV
-        run_script('src/convert_bmespecimen.py')
+        run_script(config['scripts']['convert_bmespecimen'])
         
         # Step 2: Preprocess data
-        run_script('src/data_preprocessing.py')
+        run_script(config['scripts']['data_preprocessing'])
         
-        # Step 3: Train individual models
-        run_script('src/model_training_random_forest.py')
-        run_script('src/model_training_xgboost.py')
-        run_script('src/model_training_lightgbm.py')
-        run_script('src/model_training_gradient_boosting.py')
+        # Step 3: Train individual models in parallel
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            executor.map(run_script, [
+                config['scripts']['model_training_random_forest'],
+                config['scripts']['model_training_xgboost'],
+                config['scripts']['model_training_lightgbm'],
+                config['scripts']['model_training_gradient_boosting']
+            ])
         
         # Step 4: Train the stacking model
-        run_script('src/model_training_stacking.py')
+        run_script(config['scripts']['model_training_stacking'])
         
         # Step 5: Evaluate all models
-        run_script('src/model_evaluation.py')
+        run_script(config['scripts']['model_evaluation'])
 
         logging.info("The entire fire detection model pipeline has completed successfully.")
 
     except Exception as e:
         logging.error(f"Pipeline execution failed: {str(e)}")
         raise
+
 if __name__ == "__main__":
-    main_pipeline()
+    try:
+        main_pipeline()
+    except Exception as e:
+        logging.critical(f"Unhandled exception in main pipeline: {str(e)}")
