@@ -41,9 +41,43 @@ def preprocess_data(input_dir):
     combined_df[numeric_features] = scaler.fit_transform(combined_df[numeric_features])
 
     # Feature Engineering
-    # Example: Interaction terms and derived features
-    combined_df['Temp_Gas_Interaction'] = combined_df['temperature'] * combined_df['gas1']
-    combined_df['Heat_Index'] = 0.5 * (combined_df['temperature'] + 61.0 + ((combined_df['temperature'] - 68.0) * 1.2) + (combined_df['humidity'] * 0.094))
+    # 1. Interaction Terms
+    combined_df['Temp_Humidity_Interaction'] = combined_df['temperature'] * combined_df['humidity']
+    combined_df['Temp_Pressure_Interaction'] = combined_df['temperature'] * combined_df['pressure']
+    combined_df['Gas1_Gas2_Interaction'] = combined_df['gas1'] * combined_df['gas2']
+    combined_df['Gas1_Humidity_Interaction'] = combined_df['gas1'] * combined_df['humidity']
+
+    # 2. Advanced Derived Features
+    # Enhanced Heat Index calculation with more accurate formula
+    # Reference: https://www.wpc.ncep.noaa.gov/html/heatindex_equation.shtml
+    temperature_f = combined_df['temperature'] * 9/5 + 32  # Convert Celsius to Fahrenheit for more accuracy
+    combined_df['Heat_Index'] = -42.379 + 2.04901523 * temperature_f + 10.14333127 * combined_df['humidity'] \
+                            - 0.22475541 * temperature_f * combined_df['humidity'] - 0.00683783 * temperature_f**2 \
+                            - 0.05481717 * combined_df['humidity']**2 + 0.00122874 * temperature_f**2 * combined_df['humidity'] \
+                            + 0.00085282 * temperature_f * combined_df['humidity']**2 - 0.00000199 * temperature_f**2 * combined_df['humidity']**2
+    # Convert Heat Index back to Celsius
+    combined_df['Heat_Index'] = (combined_df['Heat_Index'] - 32) * 5/9
+
+    # Gas concentration ratios
+    combined_df['Gas1_to_Gas2_Ratio'] = combined_df['gas1'] / (combined_df['gas2'] + 1e-6)
+    combined_df['Gas1_to_Gas3_Ratio'] = combined_df['gas1'] / (combined_df['gas3'] + 1e-6)
+    combined_df['Gas2_to_Gas4_Ratio'] = combined_df['gas2'] / (combined_df['gas4'] + 1e-6)
+
+    # 3. Rolling Window Statistics (window of 5 readings)
+    combined_df['Rolling_Mean_Temperature'] = combined_df['temperature'].rolling(window=5).mean()
+    combined_df['Rolling_Std_Temperature'] = combined_df['temperature'].rolling(window=5).std()
+    combined_df['Rolling_Max_Temperature'] = combined_df['temperature'].rolling(window=5).max()
+
+    combined_df['Rolling_Mean_Humidity'] = combined_df['humidity'].rolling(window=5).mean()
+    combined_df['Rolling_Std_Humidity'] = combined_df['humidity'].rolling(window=5).std()
+
+    combined_df['Rolling_Mean_Gas1'] = combined_df['gas1'].rolling(window=5).mean()
+    combined_df['Rolling_Std_Gas1'] = combined_df['gas1'].rolling(window=5).std()
+    combined_df['Rolling_Max_Gas1'] = combined_df['gas1'].rolling(window=5).max()
+
+    # Replace NaN values
+    combined_df.fillna(method='bfill', inplace=True)
+    combined_df.fillna(method='ffill', inplace=True)
 
     # Save processed data
     combined_df.to_csv(output_file, index=False)
