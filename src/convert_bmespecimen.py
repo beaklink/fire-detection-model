@@ -1,6 +1,7 @@
 import bmespecimen  # Make sure the BSEC library is correctly installed and available
 import os
 import csv
+import logging
 from utils import load_config, setup_logging
 
 # Load configuration and set up logging
@@ -32,12 +33,17 @@ def convert_bmespecimen_to_csv(input_path, output_dir):
 
             # Add the data record to our list
             data_records.append(data_record)
+
+        if not data_records:
+            logging.warning(f"No data records found in {input_path}. Skipping conversion.")
+            return
         
         # Define the output CSV file path
         output_file = os.path.join(output_dir, os.path.basename(input_path).replace('.bmespecimen', '.csv'))
         
         # Ensure the output directory exists
         os.makedirs(output_dir, exist_ok=True)
+        logging.info(f"Output directory verified: {output_dir}")
 
         # Write the data to a CSV format
         with open(output_file, 'w', newline='') as csv_file:
@@ -45,21 +51,21 @@ def convert_bmespecimen_to_csv(input_path, output_dir):
             writer.writeheader()
             writer.writerows(data_records)
         
-        print(f"Successfully converted {input_path} to {output_file}")
         logging.info(f"Successfully converted {input_path} to {output_file}")
 
     except Exception as e:
-        print(f"Error converting {input_path}: {e}")
         logging.error(f"Error converting {input_path}: {e}")
 
 def convert_all_bmespecimen(input_dir, output_dir):
     try:
         # Ensure the output directory exists
         os.makedirs(output_dir, exist_ok=True)
+        logging.info(f"Output directory created: {output_dir}")
         
         for filename in os.listdir(input_dir):
             if filename.endswith('.bmespecimen'):
                 convert_bmespecimen_to_csv(os.path.join(input_dir, filename), output_dir)
+                logging.info(f"Completed conversion for file: {filename}")
         
         logging.info("All .bmespecimen files converted successfully.")
 
